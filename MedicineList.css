@@ -1,0 +1,46 @@
+.medicine-list {
+    padding: 20px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    max-height: 600px;  /* Set a maximum height for the list */
+    overflow-y: auto;   /* Enable vertical scrolling */
+    padding-right: 20px;  /* Add some padding to the right to prevent scroll bar from touching the content */
+  }
+  
+  .medicine-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .medicine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .medicine-card-content h3 {
+    font-size: 1.25rem;
+    color: #333;
+  }
+  
+  .medicine-card-content p {
+    color: #777;
+    font-size: 1rem;
+  }
+  
