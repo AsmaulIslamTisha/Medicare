@@ -293,3 +293,288 @@ npm start # Development mode with nodemon
   updatedAt: Date
 }
 ```
+<!-- ============================ -->
+<!-- Additional Endpoints: My Works -->
+<!-- ============================ -->
+
+# Additional API Endpoints – Product Management
+
+These endpoints provide advanced operations for managing products. All endpoints in this section require JWT authentication (include the `Authorization: Bearer <jwt_token>` header).
+
+## 8. Product Management Endpoints
+
+### a. Create a New Product
+**Endpoint:** `POST /products`
+
+**Description:** Create a new product.
+
+**Request Body:**
+```json
+{
+  "name": "Product Name",
+  "brand": "Product Brand",
+  "description": "Detailed product description",
+  "category": "Category Name",
+  "price": {
+    "original": 100,
+    "discounted": 80
+  },
+  "stock": 10,
+  "weight": { "value": 500, "unit": "gm" },
+  "images": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Product created successfully",
+  "product": { /* Product object */ }
+}
+```
+
+**Status Codes:**
+- 201: Created successfully
+- 400: Validation error
+
+---
+
+### b. Get All Products (with Filtering, Search, Sorting & Pagination)
+**Endpoint:** `GET /products`
+
+**Query Parameters:**
+- `search`: *(optional)* Filter by product name (regex search)
+- `category`: *(optional)* Filter by category
+- `brand`: *(optional)* Filter by brand
+- `minPrice`: *(optional)* Minimum discounted price
+- `maxPrice`: *(optional)* Maximum discounted price
+- `page`: *(optional, default: 1)* Page number
+- `limit`: *(optional, default: 10)* Number of products per page
+- `sortBy`: *(optional)* Field to sort by (e.g., `price.discounted`, `createdAt`)
+- `order`: *(optional)* `asc` or `desc` (default is ascending)
+
+**Response:**
+```json
+{
+  "total": 100,
+  "page": 1,
+  "pages": 10,
+  "products": [ /* Array of product objects */ ]
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 500: Server error
+
+---
+
+### c. Get a Single Product by ID
+**Endpoint:** `GET /products/:id`
+
+**Response:**
+```json
+{
+  "product": { /* Product object */ }
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### d. Update a Product (Full Update)
+**Endpoint:** `PUT /products/:id`
+
+**Description:** Replace all product fields.
+
+**Request Body:** All product fields required.
+
+**Response:**
+```json
+{
+  "product": { /* Updated product object */ }
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### e. Partially Update a Product (PATCH)
+**Endpoint:** `PATCH /products/:id`
+
+**Description:** Update specific fields of a product.
+
+**Request Body:** Any subset of product fields.
+
+**Response:**
+```json
+{
+  "product": { /* Updated product object */ }
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### f. Delete a Product
+**Endpoint:** `DELETE /products/:id`
+
+**Response:**
+```json
+{
+  "message": "Product deleted successfully"
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### g. Add a Review to a Product
+**Endpoint:** `POST /products/:id/review`
+
+**Description:** Add a new review and update the product's rating.
+
+**Request Body:**
+```json
+{
+  "rating": 4,
+  "comment": "Great product!",
+  "user": "user_object_id"
+}
+```
+
+**Response:**
+```json
+{
+  "product": { /* Updated product object with new review and recalculated ratings */ }
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### h. Like a Product
+**Endpoint:** `PATCH /products/:id/like`
+
+**Description:** Increment the like count for the product.
+
+**Response:**
+```json
+{
+  "product": { /* Updated product object with incremented likes */ }
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### i. Get Similar Products for a Given Product
+**Endpoint:** `GET /products/:id/similar`
+
+**Query Parameters:**
+- `page`: *(optional, default: 1)* Page number
+- `limit`: *(optional, default: 5)* Number of similar products per page
+
+**Response:**
+```json
+[
+  { /* Similar product object */ },
+  { /* Similar product object */ }
+]
+```
+
+**Status Codes:**
+- 200: OK
+- 404: Product not found
+
+---
+
+### j. Add a Similar Product Reference
+**Endpoint:** `POST /products/:id/similar`
+
+**Description:** Add another product as similar to the current one.
+
+**Request Body:**
+```json
+{
+  "similarProductId": "another_product_object_id"
+}
+```
+
+**Response:**
+```json
+{
+  "product": { /* Updated product object with new similar product added */ }
+}
+```
+
+**Status Codes:**
+- 200: OK
+- 400: Similar product already added
+- 404: Product not found
+
+---
+
+### k. Get Popular Products
+**Endpoint:** `GET /products/popular`
+
+**Description:** Retrieve a list of popular products based on likes and views.
+
+**Response:**
+```json
+[
+  { /* Popular product object */ },
+  { /* Popular product object */ }
+]
+```
+
+**Status Codes:**
+- 200: OK
+- 500: Server error
+
+---
+
+### l. Get Aggregated Product Statistics
+**Endpoint:** `GET /products/stats`
+
+**Description:** Retrieve aggregated statistics grouped by category, including:
+- Total products per category
+- Average discounted price
+- Average rating
+
+**Response:**
+```json
+[
+  {
+    "_id": "Category Name",
+    "totalProducts": 10,
+    "averagePrice": 80,
+    "averageRating": 4.5
+  },
+  { /* More aggregated data per category */ }
+]
+```
+
+**Status Codes:**
+- 200: OK
+- 500: Server error
+```
