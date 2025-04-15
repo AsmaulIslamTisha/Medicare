@@ -1,580 +1,662 @@
-# Medicare Backend API Documentation
+# Medicare API Documentation
+
+## Overview
+
+Medicare is a web application that provides medicine ordering and delivery services. This API documentation covers the endpoints and usage of the Medicare backend services for frontend developers.
 
 ## Base URL
+
 ```
-http://localhost:5000/api
+http://localhost:5001/api
 ```
 
 ## Authentication
-Most endpoints require JWT authentication. Include the JWT token in the Authorization header:
+
+Most endpoints require authentication. The API uses JWT (JSON Web Token) for authentication.
+
+- When a user logs in, they receive a token
+- This token must be included in subsequent requests in the Authorization header:
+
 ```
-Authorization: Bearer <jwt_token>
+Authorization: Bearer {token}
 ```
 
 ## API Endpoints
 
-### 1. User Registration
-Register a new user account.
+### Authentication
 
-**Endpoint:** `POST /auth/register/user`
+#### Register User
 
-**Request Body:**
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "address": "123 Main St, City, Country"
-}
-```
-
-**Validation Rules:**
-- Name: Required
-- Email: Valid email format
-- Password: Minimum 8 characters
-- Address: Required
-
-**Response:**
-```json
-{
-  "message": "User registered successfully. Please check your email for verification."
-}
-```
-
-**Status Codes:**
-- 201: Created successfully
-- 400: Validation error or user already exists
-- 500: Server error
-
-### 2. Pharmacy Registration
-Register a new pharmacy account.
-
-**Endpoint:** `POST /auth/register/pharmacy`
-
-**Request Body:**
-```json
-{
-  "name": "MedCare Pharmacy",
-  "email": "pharmacy@example.com",
-  "password": "password123",
-  "address": "456 Health St, City, Country",
-  "licenseNumber": "PHR123456"
-}
-```
-
-**Validation Rules:**
-- Name: Required
-- Email: Valid email format
-- Password: Minimum 8 characters
-- Address: Required
-- License Number: Required, Unique
-
-**Response:**
-```json
-{
-  "message": "Pharmacy registered successfully. Please check your email for verification."
-}
-```
-
-**Status Codes:**
-- 201: Created successfully
-- 400: Validation error or pharmacy already exists
-- 500: Server error
-
-### 3. Email Verification
-Verify user/pharmacy email address.
-
-**Endpoint:** `GET /auth/verify/:token`
-
-**Parameters:**
-- token: Email verification token (received via email)
-
-**Response:**
-```json
-{
-  "message": "Email verified successfully"
-}
-```
-
-**Status Codes:**
-- 200: Verified successfully
-- 400: Invalid or expired token
-- 500: Server error
-
-### 4. Login
-Login for both users and pharmacies.
-
-**Endpoint:** `POST /auth/login`
-
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-**Response:**
-```json
-{
-  "token": "jwt_token_here",
-  "user": {
-    "id": "user_id",
+- **URL**: `/auth/register/user`
+- **Method**: `POST`
+- **Authentication**: Not required
+- **Request Body**:
+  ```json
+  {
     "name": "John Doe",
-    "email": "user@example.com",
-    "type": "user" // or "pharmacy"
+    "email": "john@example.com",
+    "password": "password123",
+    "address": {
+      "houseNo": "123",
+      "road": "Main Street",
+      "area": "Downtown"
+    }
   }
-}
-```
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "User registered successfully. Please check your email for verification."
+  }
+  ```
 
-**Status Codes:**
-- 200: Login successful
-- 401: Invalid credentials or email not verified
-- 500: Server error
+#### Register Pharmacy
 
-### 5. Forgot Password
-Request password reset link.
+- **URL**: `/auth/register/pharmacy`
+- **Method**: `POST`
+- **Authentication**: Not required
+- **Request Body**:
+  ```json
+  {
+    "name": "City Pharmacy",
+    "email": "pharmacy@example.com",
+    "password": "password123",
+    "address": {
+      "shopNo": "456",
+      "road": "Main Street",
+      "area": "Downtown"
+    },
+    "licenseNumber": "PHR12345"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Pharmacy registered successfully. Please check your email for verification."
+  }
+  ```
 
-**Endpoint:** `POST /auth/forgot-password`
+#### Verify Email
 
-**Request Body:**
+- **URL**: `/auth/verify/:token`
+- **Method**: `POST`
+- **Authentication**: Not required
+- **Response**:
+  ```json
+  {
+    "message": "Email verified successfully. You may login now."
+  }
+  ```
+
+#### Login
+
+- **URL**: `/auth/login`
+- **Method**: `POST`
+- **Authentication**: Not required
+- **Request Body**:
+  ```json
+  {
+    "email": "user@example.com",
+    "password": "password123"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "token": "jwt_token_here",
+    "user": {
+      "id": "user_id",
+      "name": "John Doe",
+      "email": "user@example.com",
+      "address": {
+        "houseNo": "123",
+        "road": "Main Street",
+        "area": "Downtown"
+      },
+      "type": "user" // or "pharmacy"
+    }
+  }
+  ```
+
+#### Forgot Password
+
+- **URL**: `/auth/forgot-password`
+- **Method**: `POST`
+- **Authentication**: Not required
+- **Request Body**:
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Password reset link sent to your email"
+  }
+  ```
+
+#### Reset Password
+
+- **URL**: `/auth/reset-password`
+- **Method**: `POST`
+- **Authentication**: Not required
+- **Request Body**:
+  ```json
+  {
+    "token": "reset_token_from_email",
+    "password": "new_password"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Password reset successful"
+  }
+  ```
+
+#### Update User Profile
+
+- **URL**: `/auth/update-user-profile`
+- **Method**: `POST`
+- **Authentication**: Required
+- **Request Body**:
+  ```json
+  {
+    "id": "user_id",
+    "name": "Updated Name",
+    "address": {
+      "houseNo": "123",
+      "road": "New Street",
+      "area": "Uptown"
+    }
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "user": {
+      "id": "user_id",
+      "name": "Updated Name",
+      "email": "user@example.com",
+      "address": {
+        "houseNo": "123",
+        "road": "New Street",
+        "area": "Uptown"
+      },
+      "type": "user"
+    }
+  }
+  ```
+
+#### Logout
+
+- **URL**: `/auth/logout`
+- **Method**: `POST`
+- **Authentication**: Required
+- **Response**:
+  ```json
+  {
+    "message": "Logged out successfully"
+  }
+  ```
+
+### Medicines
+
+#### Get All Medicines
+
+- **URL**: `/medicine`
+- **Method**: `GET`
+- **Authentication**: Not required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "count": 10,
+    "data": [
+      {
+        "_id": "medicine_id",
+        "category": "Pain Relief",
+        "mediname": "Paracetamol",
+        "subname": "Tablet",
+        "mediimage": "image_url.jpg",
+        "price": 10.99,
+        "quantity": "10 tablets"
+      }
+    ]
+  }
+  ```
+
+#### Get All Categories
+
+- **URL**: `/medicine/categories`
+- **Method**: `GET`
+- **Authentication**: Not required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "count": 5,
+    "data": ["Pain Relief", "Antibiotics", "Vitamins", "Skincare", "First Aid"]
+  }
+  ```
+
+#### Get Medicines by Category
+
+- **URL**: `/medicine/:category`
+- **Method**: `GET`
+- **Authentication**: Not required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "count": 3,
+    "data": [
+      {
+        "_id": "medicine_id",
+        "category": "Pain Relief",
+        "mediname": "Paracetamol",
+        "subname": "Tablet",
+        "mediimage": "image_url.jpg",
+        "price": 10.99,
+        "quantity": "10 tablets"
+      }
+    ]
+  }
+  ```
+
+#### Get Medicine by Name
+
+- **URL**: `/medicine/medicinename/:name`
+- **Method**: `GET`
+- **Authentication**: Not required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "_id": "medicine_id",
+      "category": "Pain Relief",
+      "mediname": "Paracetamol",
+      "subname": "Tablet",
+      "mediimage": "image_url.jpg",
+      "price": 10.99,
+      "quantity": "10 tablets"
+    }
+  }
+  ```
+
+### Orders
+
+#### Create Order
+
+- **URL**: `/order/create`
+- **Method**: `POST`
+- **Authentication**: Required
+- **Request Body**:
+  ```json
+  {
+    "userId": "user_id",
+    "products": [
+      {
+        "image": "image_url.jpg",
+        "name": "Paracetamol",
+        "subname": "Tablet",
+        "price": 10.99,
+        "quantity": 2
+      }
+    ],
+    "area": "Downtown"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "message": "Order created successfully",
+    "order": {
+      "_id": "order_id",
+      "user": "user_id",
+      "products": [
+        {
+          "image": "image_url.jpg",
+          "name": "Paracetamol",
+          "subname": "Tablet",
+          "price": 10.99,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 21.98,
+      "orderArea": "Downtown",
+      "status": "pending",
+      "accepted": false,
+      "createdAt": "2025-04-15T12:00:00.000Z"
+    }
+  }
+  ```
+
+#### Get User Orders
+
+- **URL**: `/order/user/:userId`
+- **Method**: `GET`
+- **Authentication**: Required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "count": 2,
+    "orders": [
+      {
+        "_id": "order_id",
+        "user": "user_id",
+        "products": [
+          {
+            "image": "image_url.jpg",
+            "name": "Paracetamol",
+            "subname": "Tablet",
+            "price": 10.99,
+            "quantity": 2
+          }
+        ],
+        "totalAmount": 21.98,
+        "orderArea": "Downtown",
+        "status": "pending",
+        "accepted": false,
+        "createdAt": "2025-04-15T12:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+#### Get Order by ID
+
+- **URL**: `/order/:orderId`
+- **Method**: `GET`
+- **Authentication**: Required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "order": {
+      "_id": "order_id",
+      "user": "user_id",
+      "products": [
+        {
+          "image": "image_url.jpg",
+          "name": "Paracetamol",
+          "subname": "Tablet",
+          "price": 10.99,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 21.98,
+      "orderArea": "Downtown",
+      "status": "pending",
+      "accepted": false,
+      "createdAt": "2025-04-15T12:00:00.000Z"
+    }
+  }
+  ```
+
+#### Update Order Status
+
+- **URL**: `/order/:orderId/status`
+- **Method**: `PATCH`
+- **Authentication**: Required
+- **Request Body**:
+  ```json
+  {
+    "status": "processing" // One of: "pending", "processing", "delivered"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "message": "Order status updated successfully",
+    "order": {
+      "_id": "order_id",
+      "status": "processing"
+      // ...other order details
+    }
+  }
+  ```
+
+#### Get Pharmacy Order Requests
+
+- **URL**: `/order/pharmacy/:pharmacyId?area=Downtown`
+- **Method**: `GET`
+- **Authentication**: Required
+- **Query Parameters**: `area` (required)
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "count": 3,
+    "orders": [
+      {
+        "_id": "order_id",
+        "user": "user_id",
+        "products": [
+          {
+            "image": "image_url.jpg",
+            "name": "Paracetamol",
+            "subname": "Tablet",
+            "price": 10.99,
+            "quantity": 2
+          }
+        ],
+        "totalAmount": 21.98,
+        "orderArea": "Downtown",
+        "status": "pending",
+        "accepted": false,
+        "createdAt": "2025-04-15T12:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+#### Accept Order
+
+- **URL**: `/order/accept/:orderId`
+- **Method**: `PATCH`
+- **Authentication**: Required
+- **Request Body**:
+  ```json
+  {
+    "pharmacyId": "pharmacy_id"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "message": "Order accepted successfully",
+    "order": {
+      "_id": "order_id",
+      "status": "processing",
+      "accepted": true,
+      "acceptedBy": "pharmacy_id"
+      // ...other order details
+    }
+  }
+  ```
+
+#### Get Pharmacy Orders
+
+- **URL**: `/:pharmacyId/orders`
+- **Method**: `GET`
+- **Authentication**: Required
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "count": 2,
+    "orders": [
+      {
+        "_id": "order_id",
+        "user": "user_id",
+        "products": [
+          {
+            "image": "image_url.jpg",
+            "name": "Paracetamol",
+            "subname": "Tablet",
+            "price": 10.99,
+            "quantity": 2
+          }
+        ],
+        "totalAmount": 21.98,
+        "orderArea": "Downtown",
+        "status": "processing",
+        "accepted": true,
+        "acceptedBy": "pharmacy_id",
+        "createdAt": "2025-04-15T12:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+#### Deliver Order
+
+- **URL**: `/order/deliver/:orderId`
+- **Method**: `PATCH`
+- **Authentication**: Required
+- **Request Body**:
+  ```json
+  {
+    "pharmacyId": "pharmacy_id"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "message": "Order marked as delivered successfully",
+    "order": {
+      "_id": "order_id",
+      "status": "delivered"
+      // ...other order details
+    }
+  }
+  ```
+
+## Error Handling
+
+The API returns appropriate HTTP status codes along with JSON responses:
+
+- **400 Bad Request**: Invalid input or validation failure
+- **401 Unauthorized**: Missing or invalid authentication
+- **404 Not Found**: Resource not found
+- **500 Internal Server Error**: Server-side error
+
+Example error response:
 ```json
 {
-  "email": "user@example.com"
+  "success": false,
+  "message": "Error message details",
+  "error": "Additional error details (when applicable)"
 }
 ```
 
-**Response:**
-```json
-{
-  "message": "Password reset link sent to your email"
-}
-```
+## Data Models
 
-**Status Codes:**
-- 200: Reset link sent successfully
-- 404: User not found
-- 500: Server error
+### User
 
-### 6. Reset Password
-Reset password using reset token.
-
-**Endpoint:** `POST /auth/reset-password/:token`
-
-**Parameters:**
-- token: Password reset token (received via email)
-
-**Request Body:**
-```json
-{
-  "password": "newpassword123"
-}
-```
-
-**Response:**
-```json
-{
-  "message": "Password reset successful"
-}
-```
-
-**Status Codes:**
-- 200: Password reset successful
-- 400: Invalid or expired token
-- 500: Server error
-
-### 7. Logout
-Logout user/pharmacy (requires authentication).
-
-**Endpoint:** `POST /auth/logout`
-
-**Headers Required:**
-- Authorization: Bearer <jwt_token>
-
-**Response:**
-```json
-{
-  "message": "Logged out successfully"
-}
-```
-
-**Status Codes:**
-- 200: Logout successful
-- 401: Unauthorized or invalid token
-- 500: Server error
-
-## Security Features
-
-1. **Password Security:**
-   - Passwords are hashed using bcrypt
-   - Minimum length: 8 characters
-
-2. **Email Verification:**
-   - Verification link expires in 5 minutes
-   - Single-use verification tokens
-   - Required before login
-
-3. **Password Reset:**
-   - Reset link expires in 5 minutes
-   - Single-use reset tokens
-   - Secure password update process
-
-4. **JWT Authentication:**
-   - Token expiration: 72 hours
-   - Secured routes using middleware
-   - Token-based authentication
-
-## Error Responses
-All error responses follow this format:
-```json
-{
-  "message": "Error message here",
-  "error": "Detailed error information" // Only in development
-}
-```
-
-## Notes
-2. All IDs are MongoDB ObjectIds
-3. JWT tokens should be included in the Authorization header as Bearer tokens
-4. Email verification is mandatory for both users and pharmacies
-5. Environment variables must be properly configured for database functionality
-
-## Development Setup
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Configure environment variables in `.env`:
-```
-PORT=5000
-MONGODB_URI=mongodb_uri
-JWT_SECRET=jwt_secret
-```
-
-3. Start the server:
-```bash
-npm start # Development mode with nodemon
-```
-
-## Database Models
-
-### User Model
 ```javascript
 {
   name: String,
   email: String,
   password: String,
-  address: String,
+  address: {
+    houseNo: String,
+    road: String,
+    area: String
+  },
   isVerified: Boolean,
   verificationToken: String,
   verificationTokenExpiry: Date,
   resetPasswordToken: String,
-  resetPasswordExpiry: Date,
-  createdAt: Date,
-  updatedAt: Date
+  resetPasswordExpiry: Date
 }
 ```
 
-### Pharmacy Model
+### Pharmacy
+
 ```javascript
 {
   name: String,
   email: String,
   password: String,
-  address: String,
+  address: {
+    shopNo: String,
+    road: String,
+    area: String
+  },
   licenseNumber: String,
   isVerified: Boolean,
   verificationToken: String,
   verificationTokenExpiry: Date,
   resetPasswordToken: String,
-  resetPasswordExpiry: Date,
-  createdAt: Date,
-  updatedAt: Date
+  resetPasswordExpiry: Date
 }
 ```
-<!-- ============================ -->
-<!-- Additional Endpoints: My Works -->
-<!-- ============================ -->
 
-# Additional API Endpoints – Product Management
+### Medicine
 
-These endpoints provide advanced operations for managing products. All endpoints in this section require JWT authentication (include the `Authorization: Bearer <jwt_token>` header).
-
-## 8. Product Management Endpoints
-
-### a. Create a New Product
-**Endpoint:** `POST /products`
-
-**Description:** Create a new product.
-
-**Request Body:**
-```json
+```javascript
 {
-  "name": "Product Name",
-  "brand": "Product Brand",
-  "description": "Detailed product description",
-  "category": "Category Name",
-  "price": {
-    "original": 100,
-    "discounted": 80
-  },
-  "stock": 10,
-  "weight": { "value": 500, "unit": "gm" },
-  "images": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
-  "tags": ["tag1", "tag2"]
+  category: String,
+  mediname: String,
+  subname: String,
+  mediimage: String,
+  price: Number,
+  quantity: String
 }
 ```
 
-**Response:**
-```json
+### Order
+
+```javascript
 {
-  "message": "Product created successfully",
-  "product": { /* Product object */ }
+  user: ObjectId,
+  products: [
+    {
+      image: String,
+      name: String,
+      subname: String,
+      price: Number,
+      quantity: Number
+    }
+  ],
+  totalAmount: Number,
+  accepted: Boolean,
+  acceptedBy: ObjectId,
+  orderArea: String,
+  status: String, // "pending", "processing", "delivered"
+  createdAt: Date
 }
 ```
 
-**Status Codes:**
-- 201: Created successfully
-- 400: Validation error
+## Environment Variables
 
----
+The application requires the following environment variables:
 
-### b. Get All Products (with Filtering, Search, Sorting & Pagination)
-**Endpoint:** `GET /products`
-
-**Query Parameters:**
-- `search`: *(optional)* Filter by product name (regex search)
-- `category`: *(optional)* Filter by category
-- `brand`: *(optional)* Filter by brand
-- `minPrice`: *(optional)* Minimum discounted price
-- `maxPrice`: *(optional)* Maximum discounted price
-- `page`: *(optional, default: 1)* Page number
-- `limit`: *(optional, default: 10)* Number of products per page
-- `sortBy`: *(optional)* Field to sort by (e.g., `price.discounted`, `createdAt`)
-- `order`: *(optional)* `asc` or `desc` (default is ascending)
-
-**Response:**
-```json
-{
-  "total": 100,
-  "page": 1,
-  "pages": 10,
-  "products": [ /* Array of product objects */ ]
-}
+```
+MONGODB_URI=mongodb://localhost:27017/medicare
+JWT_SECRET=your-jwt-secret
+PORT=5001
 ```
 
-**Status Codes:**
-- 200: OK
-- 500: Server error
+## Getting Started
 
----
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a `.env` file with the required environment variables
+4. Start the server: `npm start`
 
-### c. Get a Single Product by ID
-**Endpoint:** `GET /products/:id`
+The server will run on `http://localhost:5001` by default.
 
-**Response:**
-```json
-{
-  "product": { /* Product object */ }
-}
-```
+## Contact
 
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### d. Update a Product (Full Update)
-**Endpoint:** `PUT /products/:id`
-
-**Description:** Replace all product fields.
-
-**Request Body:** All product fields required.
-
-**Response:**
-```json
-{
-  "product": { /* Updated product object */ }
-}
-```
-
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### e. Partially Update a Product (PATCH)
-**Endpoint:** `PATCH /products/:id`
-
-**Description:** Update specific fields of a product.
-
-**Request Body:** Any subset of product fields.
-
-**Response:**
-```json
-{
-  "product": { /* Updated product object */ }
-}
-```
-
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### f. Delete a Product
-**Endpoint:** `DELETE /products/:id`
-
-**Response:**
-```json
-{
-  "message": "Product deleted successfully"
-}
-```
-
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### g. Add a Review to a Product
-**Endpoint:** `POST /products/:id/review`
-
-**Description:** Add a new review and update the product's rating.
-
-**Request Body:**
-```json
-{
-  "rating": 4,
-  "comment": "Great product!",
-  "user": "user_object_id"
-}
-```
-
-**Response:**
-```json
-{
-  "product": { /* Updated product object with new review and recalculated ratings */ }
-}
-```
-
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### h. Like a Product
-**Endpoint:** `PATCH /products/:id/like`
-
-**Description:** Increment the like count for the product.
-
-**Response:**
-```json
-{
-  "product": { /* Updated product object with incremented likes */ }
-}
-```
-
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### i. Get Similar Products for a Given Product
-**Endpoint:** `GET /products/:id/similar`
-
-**Query Parameters:**
-- `page`: *(optional, default: 1)* Page number
-- `limit`: *(optional, default: 5)* Number of similar products per page
-
-**Response:**
-```json
-[
-  { /* Similar product object */ },
-  { /* Similar product object */ }
-]
-```
-
-**Status Codes:**
-- 200: OK
-- 404: Product not found
-
----
-
-### j. Add a Similar Product Reference
-**Endpoint:** `POST /products/:id/similar`
-
-**Description:** Add another product as similar to the current one.
-
-**Request Body:**
-```json
-{
-  "similarProductId": "another_product_object_id"
-}
-```
-
-**Response:**
-```json
-{
-  "product": { /* Updated product object with new similar product added */ }
-}
-```
-
-**Status Codes:**
-- 200: OK
-- 400: Similar product already added
-- 404: Product not found
-
----
-
-### k. Get Popular Products
-**Endpoint:** `GET /products/popular`
-
-**Description:** Retrieve a list of popular products based on likes and views.
-
-**Response:**
-```json
-[
-  { /* Popular product object */ },
-  { /* Popular product object */ }
-]
-```
-
-**Status Codes:**
-- 200: OK
-- 500: Server error
-
----
-
-### l. Get Aggregated Product Statistics
-**Endpoint:** `GET /products/stats`
-
-**Description:** Retrieve aggregated statistics grouped by category, including:
-- Total products per category
-- Average discounted price
-- Average rating
-
-**Response:**
-```json
-[
-  {
-    "_id": "Category Name",
-    "totalProducts": 10,
-    "averagePrice": 80,
-    "averageRating": 4.5
-  },
-  { /* More aggregated data per category */ }
-]
-```
-
-**Status Codes:**
-- 200: OK
-- 500: Server error
-```
+For any questions regarding the API, please contact:
+- Email: shawalkabirchy2020@gmail.com
